@@ -2,6 +2,7 @@ import type { Metadata, Viewport } from "next";
 import { Space_Grotesk, Inter, Noto_Sans_Bengali, IBM_Plex_Mono } from "next/font/google";
 import "./globals.css";
 import { Shell } from "@/components/Shell";
+import { Providers } from "@/components/Providers";
 
 const display = Space_Grotesk({ subsets: ["latin"], weight: ["500", "700"], variable: "--font-display" });
 const body = Inter({ subsets: ["latin"], weight: ["400", "500", "600", "700"], variable: "--font-body" });
@@ -28,7 +29,7 @@ export const metadata: Metadata = {
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
-    <html lang="en">
+    <html lang="en" suppressHydrationWarning>
       <head>
         <link rel="manifest" href="/manifest.json" />
         <meta name="theme-color" content="#166534" />
@@ -36,7 +37,9 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
         <meta name="apple-mobile-web-app-capable" content="yes" />
       </head>
       <body className={`${display.variable} ${body.variable} ${bengali.variable} ${mono.variable} bg-canvas text-ink-hi`}>
-        <Shell>{children}</Shell>
+        <Providers>
+          <Shell>{children}</Shell>
+        </Providers>
         <script
           dangerouslySetInnerHTML={{
             __html: `

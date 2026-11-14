@@ -24,6 +24,7 @@ import { Panel, SourceChip } from "@/components/ui";
 import { DistrictSelect } from "@/components/DistrictSelect";
 import { LiveDataBanner } from "@/components/LiveDataBanner";
 import { NowcastCard } from "@/components/NowcastCard";
+import { FieldAreaCalculator } from "@/components/FieldAreaCalculator";
 
 const mapSkeleton = <div className="h-[380px] w-full animate-pulse rounded-xl bg-inset" />;
 const LocateMap = dynamic(() => import("@/components/LocateMap").then((m) => m.LocateMap), {
@@ -199,6 +200,7 @@ function LocateView() {
               </p>
             </Panel>
           )}
+          <FieldAreaCalculator />
         </div>
 
         <LocateMap points={PRECOMPUTED_POINTS} picked={picked} onPick={pickOnMap} />

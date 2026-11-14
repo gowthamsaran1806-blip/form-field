@@ -1,11 +1,14 @@
 "use client";
 
-import { Crop, Droplets, Flame, Leaf, Shield, Sprout } from "lucide-react";
+import { useEffect, useState } from "react";
+import { Crop, Droplets, Flame, Leaf, Shield, Sprout, Sparkles } from "lucide-react";
 import { pick, type RotationResult } from "@/lib/engine";
 import { cropName } from "@/lib/data";
 import { useLang } from "@/lib/lang";
 import { fmtNum, t } from "@/lib/i18n";
 import { ConfidenceChip, TierBadge } from "@/components/ui";
+import { ShapContributionChart } from "@/components/ShapContributionChart";
+import { generateFarmerExplanation, type AIExplanationResult } from "@/lib/geminiNano";
 
 const COMP_COLORS: Record<string, string> = {
   s1: "#4ea8de",
@@ -109,6 +112,20 @@ export function RotationCard({
 
 export function WhyDrawer({ result, onClose }: { result: RotationResult | null; onClose: () => void }) {
   const { lang } = useLang();
+  const [aiSummary, setAiSummary] = useState<AIExplanationResult | null>(null);
+  const [loadingAi, setLoadingAi] = useState(false);
+
+  useEffect(() => {
+    if (!result) return;
+    setLoadingAi(true);
+    const rotationName = result.crops.map((c) => (lang === "bn" ? c.name_bn : c.name_en)).join(" → ");
+    const signals = result.why.map((w) => pick(w, lang));
+    generateFarmerExplanation(rotationName, result.total, "Bangladesh", signals, lang)
+      .then(setAiSummary)
+      .catch(() => setAiSummary(null))
+      .finally(() => setLoadingAi(false));
+  }, [result, lang]);
+
   if (!result) return null;
   const label = (c: RotationResult["components"][number]) => (lang === "bn" ? c.label_bn : c.label);
   return (
@@ -129,6 +146,32 @@ export function WhyDrawer({ result, onClose }: { result: RotationResult | null; 
             </span>
           ))}
           <span className="ml-auto font-display text-lg font-bold tabular">{fmtNum(result.total, lang)}/{fmtNum(100, lang)}</span>
+        </div>
+
+        {/* AI Explanation Card (Gemini Nano / Cloud Gemini) */}
+        <div className="mt-4 rounded-xl border border-lime/40 bg-lime/5 p-3.5">
+          <div className="flex items-center gap-1.5 text-xs font-bold text-lime">
+            <Sparkles className="h-3.5 w-3.5" />
+            <span>
+              {aiSummary?.provider === "on-device-nano"
+                ? (lang === "bn" ? "✦ জেমিনাই ন্যানো (ডিভাইসে প্রস্তুত)" : "✦ Gemini Nano (On-Device)")
+                : (lang === "bn" ? "✦ জেমিনাই এআই পরামর্শ" : "✦ Gemini AI Advisor")}
+            </span>
+          </div>
+          <p className="mt-1.5 text-xs leading-relaxed text-ink-mid">
+            {loadingAi ? (
+              <span className="animate-pulse text-ink-low">
+                {lang === "bn" ? "এআই পরামর্শ প্রস্তুত হচ্ছে…" : "Generating AI summary…"}
+              </span>
+            ) : (
+              aiSummary?.text
+            )}
+          </p>
+        </div>
+
+        {/* SHAP Feature Contribution Chart */}
+        <div className="mt-4">
+          <ShapContributionChart result={result} lang={lang} />
         </div>
 
         <h3 className="mt-5 text-xs font-semibold uppercase tracking-wider text-ink-low">{t("because", lang)}</h3>

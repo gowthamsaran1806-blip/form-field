@@ -1,0 +1,128 @@
+{
+  "locale": "ta",
+  "name": "தமிழ்",
+  "name_en": "Tamil",
+  "version": "1.0.0",
+  "created_for": "NASA Space Apps Challenge 2026",
+  "project": "Field Shift",
+  "navigation": {
+    "nav_home": "முகப்பு",
+    "nav_field": "நில ஆய்வு",
+    "nav_plan": "பயிர் சுழற்சி திட்டம்",
+    "nav_saved": "சேமிக்கப்பட்டவை",
+    "nav_disease": "பயிர் மருத்துவர்",
+    "nav_locate": "இடம் மற்றும் பரப்பளவு",
+    "nav_quick": "உடனடி தீர்வு",
+    "nav_docs": "ஆவணங்கள்",
+    "nav_method": "அறிவியல் முறை",
+    "nav_data": "நாசா தரவுகள்"
+  },
+  "crops": {
+    "aman-rice": {
+      "name": "நெல் (சம்பா / காரிஃப்-2)",
+      "scientific": "Oryza sativa",
+      "season": "மழைக்காலம்",
+      "description": "முக்கிய சம்பா நெல் பயிர், பருவமழையை சார்ந்தது"
+    },
+    "aus-rice": {
+      "name": "நெல் (குறுவை / முன்பருவமழை)",
+      "scientific": "Oryza sativa",
+      "season": "முன்பருவமழை",
+      "description": "குறுகிய கால குறுவை நெல்"
+    },
+    "boro-rice": {
+      "name": "நெல் (நவரை / கோடை நெல்)",
+      "scientific": "Oryza sativa",
+      "season": "குளிர்காலம்/கோடை",
+      "description": "பாசனத்தை அதிகம் நம்பியிருக்கும் பனிப்பருவ நெல்"
+    },
+    "wheat": {
+      "name": "கோதுமை",
+      "scientific": "Triticum aestivum",
+      "season": "ரபி / குளிர்காலம்",
+      "description": "குறைந்த நீர் தேவை கொண்ட தானியம்"
+    },
+    "maize": {
+      "name": "மக்காச்சோளம்",
+      "scientific": "Zea mays",
+      "season": "ரபி / கோடை",
+      "description": "அதிக மகசூல் தரும் உணவு மற்றும் தீவனப் பயிர்"
+    },
+    "potato": {
+      "name": "உருளைக்கிழங்கு",
+      "scientific": "Solanum tuberosum",
+      "season": "ரபி / குளிர்காலம்",
+      "description": "அதிக வருமானம் தரும் பணப்பயிர்"
+    },
+    "mustard": {
+      "name": "கடுகு",
+      "scientific": "Brassica juncea",
+      "season": "ரபி",
+      "description": "குறைந்த பாசன எண்ணெய் வித்து பயிர்"
+    },
+    "lentil": {
+      "name": "பருப்பு",
+      "scientific": "Lens culinaris",
+      "season": "ரபி",
+      "description": "மண்ணிற்கு நைட்ரஜனை நிலைநிறுத்தும் பயறு வகை"
+    },
+    "mungbean": {
+      "name": "பாசிப்பயறு",
+      "scientific": "Vigna radiata",
+      "season": "முன்பருவமழை / கோடை",
+      "description": "மண் வளத்தை பெருக்கும் குறுகிய கால பயறு"
+    },
+    "sesame": {
+      "name": "எள்",
+      "scientific": "Sesamum indicum",
+      "season": "முன்பருவமழை",
+      "description": "வறட்சியைத் தாங்கும் எண்ணெய் வித்து"
+    },
+    "jute": {
+      "name": "சணல்",
+      "scientific": "Corchorus olitorius",
+      "season": "முன்பருவமழை",
+      "description": "மண்ணிற்கு அதிக இலைதழை சத்தை தரும் நார் பயிர்"
+    },
+    "fallow": {
+      "name": "தரிசு நிலம்",
+      "scientific": "None",
+      "season": "ஓய்வு",
+      "description": "மண்ணிற்கு ஓய்வளிக்கும் இடைவெளி"
+    }
+  },
+  "priorities": {
+    "water": "நீர் பாதுகாப்பு (Water Saving)",
+    "soilHealth": "மண் வளம் (Soil Health)",
+    "stability": "உறுதியான மகசூல் (Stable Harvest)",
+    "riskSafety": "காலநிலை பாதுகாப்பு (Climate Safety)"
+  },
+  "nasa_datasets": {
+    "power": "NASA POWER — 45 ஆண்டு கால சூரிய வெப்பம் மற்றும் தட்பவெப்ப தரவு",
+    "imerg": "GPM IMERG — நிகழ்நேர விண்கல மழைப்பொழிவு மதிப்பீடு",
+    "smap": "NASA SMAP L4 — 9 கி.மீ வேர் மண்டல மண் ஈரப்பதம்",
+    "modis": "MODIS Terra — தாவர பசுமை குறியீடு (NDVI)",
+    "grace": "NASA JPL GRACE/GRACE-FO — நிலத்தடி நீர் இருப்பு போக்கு",
+    "gibs": "NASA GIBS VIIRS — நிகழ்நேர விண்கல செயற்கைக்கோள் பார்வை"
+  },
+  "common_phrases": {
+    "hero_title": "பருவமழை மாறியது. உங்கள் பயிர் சுழற்சியும் மாற வேண்டும்.",
+    "hero_sub": "நாசாவின் புவி கண்காணிப்பு தரவுகளைப் பயன்படுத்தி விவசாயிகளுக்கான உகந்த பயிர் சுழற்சி ஆலோசனை.",
+    "voice_mic_title": "குரல் வழி கட்டுப்பாடு (பேசவும்: தண்ணீர், மண், மகசூல்)",
+    "save_plan": "திட்டத்தை சேமிக்கவும்",
+    "saved_success": "வெற்றிகரமாக சேமிக்கப்பட்டது!",
+    "print_advisory": "அறிவுரை சீட்டை அச்சிட",
+    "compare_mode": "இரு திட்டங்களை ஒப்பிடுக",
+    "crop_doctor_title": "பயிர் மருத்துவர் — இலை நோய் கண்டறிதல்",
+    "field_calculator_title": "நில பரப்பளவு கணக்கீட்டாளர் (Turf.js)",
+    "weather_7day": "7 நாள் வானிலை முன்னறிவிப்பு",
+    "heat_alert": "வெப்ப அலை எச்சரிக்கை: அடுத்த வாரத்தில் 35°C-க்கு மேல் வெப்பம் பதிவாகும்",
+    "dry_spell": "வறட்சி எச்சரிக்கை: அடுத்த வாரத்தில் மழை இல்லை"
+  },
+  "voice_keywords": {
+    "water": ["தண்ணீர்", "நீர்", "பாசனம்", "மழை", "water", "irrigation"],
+    "soil": ["மண்", "வளம்", "உரம்", "நைட்ரஜன்", "soil", "fertilizer"],
+    "stability": ["மகசூல்", "வருமானம்", "உணவு", "பயிர்", "yield", "harvest", "income"],
+    "risk": ["ஆபத்து", "வெப்பம்", "வெள்ளம்", "புயல்", "பாதுகாப்பு", "risk", "flood", "heat"]
+  }
+}

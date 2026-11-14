@@ -8,7 +8,8 @@ import {
   type SeasonKey,
   type SaltTolerance,
 } from "./data";
-import { fmtNum, toBnDigits, type BiText } from "./i18n";
+import { fmtNum, toBnDigits, type BiText, type Lang } from "./i18n";
+import { cropName } from "./data";
 
 export type { BiText };
 export { pick } from "./i18n";
@@ -94,9 +95,9 @@ const SAME_FAMILY_POINTS = 1.5;
 const CEREAL_SEQUENCE_SOIL_HIT = 0.07;
 const LEGUME_SEQUENCE_SOIL_HIT = 0.03;
 const SAME_FAMILY_SOIL_HIT = 0.05;
-const IDLE_FALLLOW_POINTS = 4;
-const IDLE_FALLLOW_SOIL_HIT = 0.08;
-const FALLLOW_BREAK_CREDIT = 0.08;
+const IDLE_FALLOW_POINTS = 4;
+const IDLE_FALLOW_SOIL_HIT = 0.08;
+const FALLOW_BREAK_CREDIT = 0.08;
 const EARLY_ONSET_CREDIT_RATE = 4;
 const EARLY_ONSET_MAX_POINTS = 3;
 /** A season fully watered at the top demo income value would score 1; this reference keeps the income bar in the same band as the other components. */
@@ -431,13 +432,13 @@ function sequenceRules(crops: Crop[], idleScale: number) {
         `Idle fallow season (${num(freePct)}% of a crop window still free) — bare soil, no residue return, weed seed bank builds`,
         `পতিত মৌসুম (একটি ফসলের জানালার ${numBn(freePct)}% এখনও ফাঁকা) — নগ্ন মাটি, অবশিষ্টাংশ ফেরত নেই, আগাছার বীজ জমছে`,
       ),
-      amount: points(IDLE_FALLLOW_POINTS * idleScale),
+      amount: points(IDLE_FALLOW_POINTS * idleScale),
       source: bi(
         "ESTIMATE — demo penalty for leaving land uncropped, scaled by the calendar room the farm actually had",
         "ESTIMATE — জমি ফাঁকা রাখার ডেমো জরিমানা, খামারের বাস্তব ক্যালেন্ডার-জায়গা অনুযায়ী হার",
       ),
     });
-    soilHit += IDLE_FALLLOW_SOIL_HIT * idleScale;
+    soilHit += IDLE_FALLOW_SOIL_HIT * idleScale;
   }
   return { listed, soilHit };
 }
@@ -478,7 +479,8 @@ export function generateRotations(pack: FarmPack, priorities: Priorities, sc: Sc
         irrigating: season !== "aman" && crop.waterDemand > rain,
         onsetHeat: onsetHeatRisk(crop, shift),
       };
-    });    const dry = perSeason.filter((p) => p.season !== "aman");
+    });
+    const dry = perSeason.filter((p) => p.season !== "aman");
 
     const s1 = mean(perSeason.map((p) => p.adequacy));
     const s2 = mean(perSeason.map((p) => p.thermal));
@@ -502,7 +504,7 @@ export function generateRotations(pack: FarmPack, priorities: Priorities, sc: Sc
 
     const familyMix = new Set(real.map((c) => c.family)).size / Math.max(1, real.length);
     const rootAlt = real.filter((c, i) => i > 0 && c.rootDeep !== real[i - 1].rootDeep).length / Math.max(1, real.length - 1);
-    const s5 = clamp01(0.5 * familyMix + 0.5 * rootAlt + (real.length < crops.length ? FALLLOW_BREAK_CREDIT : 0));
+    const s5 = clamp01(0.5 * familyMix + 0.5 * rootAlt + (real.length < crops.length ? FALLOW_BREAK_CREDIT : 0));
 
     const [amanCrop] = crops;
     const floodRisk = pack.floodProneIndex * (1 - amanCrop.floodTol);
@@ -679,7 +681,7 @@ export function generateRotations(pack: FarmPack, priorities: Priorities, sc: Sc
     return {
       id: `${pack.id}-rot-${idx}`,
       crops,
-      total: Math.round(total100 * 10) / 10,
+      total: Math.max(0, Math.round(total100 * 10) / 10),
       components,
       penalties,
       confidence,
@@ -694,8 +696,8 @@ export function generateRotations(pack: FarmPack, priorities: Priorities, sc: Sc
   return results.sort((a, b) => b.total - a.total);
 }
 
-export function advisoryText(pack: FarmPack, top: RotationResult, lang: "en" | "bn"): string {
-  const seq = top.crops.map((c) => (lang === "en" ? c.name_en : c.name_bn)).join(" → ");
+export function advisoryText(pack: FarmPack, top: RotationResult, lang: Lang): string {
+  const seq = top.crops.map((c) => cropName(c, lang)).join(" → ");
   const pump = Math.round(top.irrigationShare * 100);
   const onset = top.penalties.find((p) => p.rule.en.startsWith("Late monsoon onset"));
   const v = (x: number | string) => fmtNum(x, lang);
@@ -704,6 +706,16 @@ export function advisoryText(pack: FarmPack, top: RotationResult, lang: "en" | "
   const later = pack.onset.shiftDays > 0;
   const product = pack.onset.source ?? "demo fixture";
   const significant = onsetShiftSignificant(pack);
+
+  if (lang === "ta") {
+    const taOnset = significant
+      ? `பயன்பாட்டு பருவமழை 2001–2012 விட ${measured} நாட்கள் ${later ? "தாமதமாக" : "முன்பாக"} துவங்குகிறது (${product}, p=${p}).`
+      : `இந்த பண்ணையில் குறிப்பிடத்தக்க பருவமழை மாற்றம் இல்லை (${product}, p=${p}).`;
+    const taIrrig = pump > 0
+      ? `வறண்ட பருவத்தில் பாசன தேவை அதிகமாக உள்ளது (+${pump}/100).`
+      : `இந்த பயிர் சுழற்சிக்கு வறண்ட பருவத்தில் கூடுதல் பாசனம் தேவையில்லை.`;
+    return `${taOnset} சிறந்த பயிர் சுழற்சி: ${seq} — மதிப்பெண் ${top.total}/100. ${taIrrig}`;
+  }
 
   if (lang === "en") {
     const onsetLine = significant
@@ -724,12 +736,10 @@ export function advisoryText(pack: FarmPack, top: RotationResult, lang: "en" | "
   return `${bnOnset} সেরা ফসল-পর্যায়: ${seq} — স্কোর ${v(top.total)}/১০০। ${bnIrrig}${bnPenalty}`;
 }
 
-export function smsText(pack: FarmPack, top: RotationResult, lang: "en" | "bn", sc: Scenario = DEFAULT_SCENARIO): string {
-  const seq = top.crops.map((c) => c.name_en).join(">");
+export function smsText(pack: FarmPack, top: RotationResult, lang: Lang, sc: Scenario = DEFAULT_SCENARIO): string {
+  const seq = top.crops.map((c) => cropName(c, lang)).join(">");
   const shift = effectiveOnsetShift(pack, sc);
   const hypothetical = sc.onsetShiftDays !== 0;
-  // "?" marks a what-if shift: the plan was ranked under sc, so the SMS must quote the same
-  // effective shift instead of the measured-only baseline (was: hardcoded zeros here).
   const pump = Math.round(top.irrigationShare * 100);
   const v = (x: number | string) => fmtNum(x, lang);
   const measuredSig = onsetShiftSignificant(pack);
@@ -739,6 +749,7 @@ export function smsText(pack: FarmPack, top: RotationResult, lang: "en" | "bn", 
   const onsetBn = measuredSig || hypothetical
     ? `শুরু ${shift >= 0 ? "+" : ""}${v(shift)} দিন${hypothetical ? "?" : ""}`
     : `শুরু উল্লেখযোগ্য নয় (p=${v(pack.onset.pValue.toFixed(2))})`;
+  if (lang === "ta") return `ஃபீல்ட்ஷிப்ட் ${pack.name_en}: ${onsetPart}. பரிந்துரை: ${seq}. பாசனம் +${v(pump)}/100. மதிப்பெண் ${v(top.total)}/100.`;
   if (lang === "en") return `FieldShift ${pack.name_en}: ${onsetPart}. Try: ${seq}. Pump +${v(pump)}/100. Score ${v(top.total)}/100.`;
-  return `ফিল্ডশিফট ${pack.name_bn}: ${onsetBn}। ফসল: ${top.crops.map((c) => c.name_bn).join(">")}। সেচ +${v(pump)}/১০০। স্কোর ${v(top.total)}/১০০।`;
+  return `ফিল্ডশিফট ${pack.name_bn}: ${onsetBn}। ফসল: ${seq}। সেচ +${v(pump)}/১০০। স্কোর ${v(top.total)}/১০০।`;
 }

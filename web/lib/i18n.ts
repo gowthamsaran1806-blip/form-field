@@ -1,4 +1,4 @@
-export type Lang = "en" | "bn";
+export type Lang = "en" | "bn" | "ta";
 
 /** Bengali digits ০–৯. Same value, different glyph. */
 const BN_DIGITS = ["০", "১", "২", "৩", "৪", "৫", "৬", "৭", "৮", "৯"] as const;
@@ -13,19 +13,21 @@ export const fmtNum = (value: string | number, lang: Lang) => (lang === "bn" ? t
 export const fmtUnit = (value: string | number, unit: string, lang: Lang) => `${fmtNum(value, lang)} ${unit}`;
 
 const STRINGS = {
-  nav_home: { en: "Home", bn: "হোম" },
-  nav_field: { en: "Field Analysis", bn: "মাঠ বিশ্লেষণ" },
-  nav_plan: { en: "Crop Planning", bn: "ফসল পরিকল্পনা" },
-  nav_method: { en: "Method", bn: "পদ্ধতি" },
-  nav_data: { en: "Data", bn: "ডেটা" },
-  nav_docs: { en: "Documentation", bn: "ডকুমেন্টেশন" },
-  theme_toggle: { en: "Toggle theme", bn: "থিম পরিবর্তন" },
-  theme_light: { en: "Light", bn: "লাইট" },
-  theme_dark: { en: "Dark", bn: "ডার্ক" },
-  nav_locate: { en: "Pick a location", bn: "স্থান বেছে নিন" },
-  nav_quick: { en: "Quick answer", bn: "দ্রুত উত্তর" },
-  search_ph: { en: "Search district or demo farm…", bn: "জেলা বা খামার খুঁজুন…" },
-  tagline: { en: "Earth data. Smarter farms.", bn: "পৃথিবীর তথ্য। ভালো ফসল।" },
+  nav_home: { en: "Home", bn: "হোম", ta: "முகப்பு" },
+  nav_field: { en: "Field Analysis", bn: "মাঠ বিশ্লেষণ", ta: "நில ஆய்வு" },
+  nav_plan: { en: "Crop Planning", bn: "ফসল পরিকল্পনা", ta: "பயிர் திட்டம்" },
+  nav_method: { en: "Method", bn: "পদ্ধতি", ta: "அறிவியல் முறை" },
+  nav_data: { en: "Data", bn: "ডেটা", ta: "நாசா தரவுகள்" },
+  nav_docs: { en: "Documentation", bn: "ডকুমেন্টেশন", ta: "ஆவணங்கள்" },
+  theme_toggle: { en: "Toggle theme", bn: "থিম পরিবর্তন", ta: "வண்ண மாற்றம்" },
+  theme_light: { en: "Light", bn: "লাইট", ta: "வெளிச்சம்" },
+  theme_dark: { en: "Dark", bn: "ডার্ক", ta: "இருள்" },
+  nav_locate: { en: "Pick a location", bn: "স্থান বেছে নিন", ta: "இடம் தேர்வு" },
+  nav_quick: { en: "Quick answer", bn: "দ্রুত উত্তর", ta: "உடனடி தீர்வு" },
+  nav_saved: { en: "Saved Plans", bn: "সংরক্ষিত পরিকল্পনা", ta: "சேமிக்கப்பட்டவை" },
+  nav_disease: { en: "Crop Doctor", bn: "ফসল ডাক্তার", ta: "பயிர் மருத்துவர்" },
+  search_ph: { en: "Search district or demo farm…", bn: "জেলা বা খামার খুঁজুন…", ta: "மாவட்டம் அல்லது பண்ணையைத் தேடுங்கள்…" },
+  tagline: { en: "Earth data. Smarter farms.", bn: "পৃথিবীর তথ্য। ভালো ফসল।", ta: "நாசா புவி தரவு. சிறந்த விவசாயம்." },
   shell_note_1: { en: "NASA POWER data today.", bn: "আজ NASA POWER-এর ডেটা।" },
   shell_note_2: { en: "More feeds next.", bn: "পরে আরও ডেটা।" },
   shell_note_3: { en: "A healthier tomorrow.", bn: "সুস্থ আগামীকাল।" },
@@ -647,19 +649,26 @@ const STRINGS = {
 export type StringKey = keyof typeof STRINGS;
 /** Every key, so a test can require en and bn for each string the interface reads. */
 export const STRING_KEYS = Object.keys(STRINGS) as StringKey[];
-export const t = (key: StringKey, lang: Lang) => STRINGS[key][lang];
+export const t = (key: StringKey, lang: Lang) => {
+  const entry = STRINGS[key] as unknown as Record<string, string>;
+  return entry[lang] ?? entry.en;
+};
 
-/** Interface text that exists in both languages, carrying the same numbers in each. */
+/** Interface text that exists in multiple languages, carrying the same numbers in each. */
 export interface BiText {
   en: string;
   bn: string;
+  ta?: string;
 }
 
-export const pick = (text: BiText, lang: Lang) => text[lang];
+export const pick = (text: BiText, lang: Lang) => (lang === "ta" ? (text.ta ?? text.en) : text[lang]);
 
 /** Strings with {placeholder} slots — the phrasing follows the language and inserted numbers take that language's digits. */
-export const tf = (key: StringKey, lang: Lang, vars: Record<string, string | number>) =>
-  STRINGS[key][lang].replace(/\{(\w+)\}/g, (_match, name: string) => fmtNum(String(vars[name] ?? ""), lang));
+export const tf = (key: StringKey, lang: Lang, vars: Record<string, string | number>) => {
+  const entry = STRINGS[key] as unknown as Record<string, string>;
+  const template = entry[lang] ?? entry.en;
+  return template.replace(/\{(\w+)\}/g, (_match, name: string) => fmtNum(String(vars[name] ?? ""), lang));
+};
 
 const GROWTH_STAGE_BN: Record<string, string> = {
   Vegetative: "বর্ধনাকাল",
@@ -667,8 +676,14 @@ const GROWTH_STAGE_BN: Record<string, string> = {
   Flowering: "ফুল ধরা",
 };
 
+const GROWTH_STAGE_TA: Record<string, string> = {
+  Vegetative: "வளர்ச்சி நிலை",
+  Tillering: "தூர்கட்டும் நிலை",
+  Flowering: "பூக்கும் பருவம்",
+};
+
 export const growthStageLabel = (stage: string, lang: Lang) =>
-  lang === "bn" ? GROWTH_STAGE_BN[stage] ?? stage : stage;
+  lang === "bn" ? GROWTH_STAGE_BN[stage] ?? stage : lang === "ta" ? GROWTH_STAGE_TA[stage] ?? stage : stage;
 
 const SOIL_TEXTURE_BN: Record<string, string> = {
   Loam: "দোঁশ",
@@ -678,24 +693,34 @@ const SOIL_TEXTURE_BN: Record<string, string> = {
   "Silty Clay Loam": "পলল-এঁটে-দোঁশ",
 };
 
-export const soilTextureLabel = (texture: string, lang: Lang) =>
-  lang === "bn" ? SOIL_TEXTURE_BN[texture] ?? texture : texture;
+const SOIL_TEXTURE_TA: Record<string, string> = {
+  Loam: "வண்டல் மண்",
+  "Clay Loam": "களிமண் கலந்த வண்டல்",
+  "Sandy Loam": "மணல் கலந்த வண்டல்",
+  "Silty Clay": "வண்டல் களிமண்",
+  "Silty Clay Loam": "வண்டல் கலந்த பாசி மண்",
+};
 
-/** Calendar month names in both languages, index 0 = January. */
-const MONTHS: [string, string][] = [
-  ["Jan", "জানু"], ["Feb", "ফেব্রু"], ["Mar", "মার্চ"], ["Apr", "এপ্রিল"], ["May", "মে"], ["Jun", "জুন"],
-  ["Jul", "জুলাই"], ["Aug", "আগ"], ["Sep", "সেপ্ট"], ["Oct", "অক্টো"], ["Nov", "নভে"], ["Dec", "ডিসে"],
+export const soilTextureLabel = (texture: string, lang: Lang) =>
+  lang === "bn" ? SOIL_TEXTURE_BN[texture] ?? texture : lang === "ta" ? SOIL_TEXTURE_TA[texture] ?? texture : texture;
+
+/** Calendar month names in all languages, index 0 = January. */
+const MONTHS: [string, string, string][] = [
+  ["Jan", "জানু", "ஜன"], ["Feb", "ফেব্রু", "பிப்"], ["Mar", "মার্চ", "மார்ச்"], ["Apr", "এপ্রিল", "ஏப்"], ["May", "মে", "மே"], ["Jun", "জুন", "ஜூன்"],
+  ["Jul", "জুলাই", "ஜூலை"], ["Aug", "আগ", "ஆக"], ["Sep", "সেপ্ট", "செப்"], ["Oct", "অক্টো", "அக்"], ["Nov", "নভে", "நவ"], ["Dec", "ডিসে", "டிச"],
 ];
 
 export const monthLabel = (monthIndex: number, lang: Lang) => {
-  const [en, bn] = MONTHS[((monthIndex % 12) + 12) % 12];
-  return lang === "bn" ? bn : en;
+  const [en, bn, ta] = MONTHS[((monthIndex % 12) + 12) % 12];
+  return lang === "bn" ? bn : lang === "ta" ? ta : en;
 };
 
 /** Day plus month for a day-of-year value, written the way the language writes dates. */
 export const dayMonthLabel = (doy: number, lang: Lang, year = 2024) => {
   const d = new Date(year, 0, doy);
-  return lang === "bn" ? `${toBnDigits(d.getDate())} ${monthLabel(d.getMonth(), "bn")}` : d.toLocaleString("en", { month: "short", day: "numeric" });
+  if (lang === "bn") return `${toBnDigits(d.getDate())} ${monthLabel(d.getMonth(), "bn")}`;
+  if (lang === "ta") return `${d.getDate()} ${monthLabel(d.getMonth(), "ta")}`;
+  return d.toLocaleString("en", { month: "short", day: "numeric" });
 };
 
 export const CONF_KEYS = {

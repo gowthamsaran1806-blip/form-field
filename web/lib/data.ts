@@ -373,7 +373,28 @@ export const getFarm = (id: string) => FARMS.find((f) => f.id === id) ?? FARMS[0
 export const farmName = (f: FarmPack, lang: Lang) => (lang === "bn" ? f.name_bn : f.name_en);
 export const districtName = (f: FarmPack, lang: Lang) => (lang === "bn" ? f.district_bn : f.district);
 export const divisionName = (f: FarmPack, lang: Lang) => (lang === "bn" ? f.division_bn : f.division);
-export const cropName = (c: Crop, lang: Lang) => (lang === "bn" ? c.name_bn : c.name_en);
+const CROP_TAMIL: Record<string, string> = {
+  aman: "நெல் (அமன் / சம்பா)",
+  "aman-rice": "நெல் (அமன் / சம்பா)",
+  boro: "நெல் (போரோ / நவரை)",
+  "boro-rice": "நெல் (போரோ / நவரை)",
+  aus: "நெல் (ஆவுஷ் / குறுவை)",
+  "aus-rice": "நெல் (ஆவுஷ் / குறுவை)",
+  wheat: "கோதுமை",
+  maize: "மக்காச்சோளம்",
+  potato: "உருளைக்கிழங்கு",
+  mustard: "கடுகு",
+  lentil: "பருப்பு (மசூர்)",
+  mungbean: "பாசிப்பயறு",
+  sesame: "எள்",
+  jute: "சணல்",
+  fallow: "தரிசு நிலம்",
+};
+
+export const cropName = (c: Crop, lang: Lang) => {
+  if (lang === "ta") return CROP_TAMIL[c.id] ?? c.name_en;
+  return lang === "bn" ? c.name_bn : c.name_en;
+};
 export const farmContext = (f: FarmPack, lang: Lang) => (lang === "bn" ? f.context_bn : f.context);
 export const onsetRule = (f: FarmPack, lang: Lang) => (lang === "bn" ? f.onset.threshold_bn : f.onset.threshold);
 export const provDetail = (p: ProvEntry, lang: Lang) => (lang === "bn" ? p.detail_bn : p.detail);

@@ -113,3 +113,20 @@ body {
     animation: none;
   }
 }
+
+/* View Transitions API (Native GPU-accelerated page animations) */
+@view-transition {
+  navigation: auto;
+}
+
+::view-transition-old(root) {
+  animation: 180ms ease-out both fade-out;
+}
+::view-transition-new(root) {
+  animation: 220ms ease-out both fade-up;
+}
+
+@keyframes fade-out {
+  from { opacity: 1; transform: translateY(0); }
+  to { opacity: 0; transform: translateY(-4px); }
+}

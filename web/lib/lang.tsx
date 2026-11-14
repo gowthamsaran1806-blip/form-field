@@ -10,7 +10,9 @@ const listeners = new Set<() => void>();
 
 const readLang = (): Lang => {
   try {
-    return window.localStorage.getItem(STORAGE_KEY) === "bn" ? "bn" : "en";
+    const val = window.localStorage.getItem(STORAGE_KEY);
+    if (val === "bn" || val === "ta") return val;
+    return "en";
   } catch {
     return "en";
   }

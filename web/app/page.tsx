@@ -1,124 +1,326 @@
 "use client";
 
+import { useMemo, useState } from "react";
 import Link from "next/link";
-import { ArrowRight, Droplets, MapPin, Sprout, Thermometer, TrendingDown, Zap } from "lucide-react";
-import { FARMS, districtName, divisionName, farmContext, farmName } from "@/lib/data";
+import {
+  ArrowRight,
+  Bookmark,
+  CalendarRange,
+  Droplets,
+  Flame,
+  Globe2,
+  MapPin,
+  Satellite,
+  Shield,
+  Sparkles,
+  Sprout,
+  Stethoscope,
+  Thermometer,
+  Zap,
+} from "lucide-react";
+import {
+  CROPS,
+  FARMS,
+  districtName,
+  divisionName,
+  farmContext,
+  farmName,
+  getFarm,
+} from "@/lib/data";
 import { withRealData } from "@/lib/packs";
-import { onsetShiftSignificant } from "@/lib/engine";
+import {
+  DEFAULT_PRIORITIES,
+  DEFAULT_SCENARIO,
+  generateRotations,
+  onsetShiftSignificant,
+  type Priorities,
+  type RotationResult,
+} from "@/lib/engine";
 import { useLang } from "@/lib/lang";
 import { fmtNum, t } from "@/lib/i18n";
-import { Panel, SourceChip } from "@/components/ui";
+import { Panel } from "@/components/ui";
+import { RotationCard, WhyDrawer } from "@/components/RotationCard";
+import { WeatherForecastCard } from "@/components/WeatherForecastCard";
+import { FieldAreaCalculator } from "@/components/FieldAreaCalculator";
+import { VoicePriorityMic } from "@/components/VoicePriorityMic";
+import { SavePlanButton } from "@/components/SavePlanButton";
+import { ExportPDFButton } from "@/components/ExportPDFButton";
+import { DownloadTamilButton } from "@/components/DownloadLocaleButton";
 
-export default function Home() {
+const ALL_CROP_IDS = new Set(CROPS.map((c) => c.id));
+
+export default function UnifiedHome() {
   const { lang } = useLang();
-  const FEATURES = [
-    { icon: TrendingDown, title: t("feat_shifted_title", lang), body: t("feat_shifted_body", lang) },
-    { icon: Sprout, title: t("feat_plant_title", lang), body: t("feat_plant_body", lang) },
-    { icon: Droplets, title: t("feat_whatif_title", lang), body: t("feat_whatif_body", lang) },
-  ];
+  const [selectedFarmId, setSelectedFarmId] = useState("farm-12");
+  const [priorities, setPriorities] = useState<Priorities>(DEFAULT_PRIORITIES);
+  const [whyResult, setWhyResult] = useState<RotationResult | null>(null);
+
+  // Active farm pack
+  const farm = useMemo(() => withRealData(getFarm(selectedFarmId)), [selectedFarmId]);
+
+  // Live top rotations for the active farm
+  const rotations = useMemo(
+    () => generateRotations(farm, priorities, DEFAULT_SCENARIO, ALL_CROP_IDS),
+    [farm, priorities]
+  );
+  const topRotation = rotations[0];
+
   return (
-    <div className="mx-auto max-w-6xl px-4 py-10 lg:px-8">
-      <section className="fade-up">
-        <p className="font-mono text-xs uppercase tracking-[0.2em] text-lime">
-          NASA Space Apps Challenge 2026 · Field Shift
-        </p>
-        <h1 className="mt-4 max-w-3xl font-display text-4xl font-bold leading-[1.08] tracking-tight lg:text-6xl">
-          {t("hero_line1", lang)}
-          <br />
+    <div className="mx-auto max-w-7xl px-4 py-8 lg:px-8 space-y-8">
+      {/* 🚀 1. NASA Space Apps Challenge Hero Header */}
+      <section className="rounded-2xl border border-lime/40 bg-gradient-to-br from-surface via-elevated to-surface p-6 lg:p-8 shadow-sm fade-up">
+        <div className="flex flex-wrap items-center justify-between gap-3">
+          <div className="inline-flex items-center gap-2 rounded-full border border-lime/50 bg-lime/10 px-3 py-1 text-xs font-bold text-lime">
+            <Satellite className="h-3.5 w-3.5" />
+            NASA Space Apps Challenge 2026 · Team Orion
+          </div>
+          <div className="flex items-center gap-2 text-xs text-ink-low font-mono">
+            <span>NASA POWER</span> · <span>GPM IMERG</span> · <span>SMAP</span> · <span>MODIS</span> · <span>GRACE</span>
+          </div>
+        </div>
+
+        <h1 className="mt-4 font-display text-3xl font-extrabold tracking-tight text-ink-hi lg:text-5xl">
+          {t("hero_line1", lang)}{" "}
           <span className="text-lime">{t("hero_line2", lang)}</span>
         </h1>
-        <p className="mt-5 max-w-2xl text-base leading-relaxed text-ink-mid lg:text-lg">{t("hero_intro", lang)}</p>
-        <div className="mt-7 flex flex-wrap items-center gap-3">
-          <Link
-            href="/field?farm=farm-12"
-            className="flex items-center gap-2 rounded-lg bg-lime px-5 py-3 text-sm font-bold text-canvas transition-transform hover:-translate-y-0.5"
-          >
-            {t("cta_open_farm", lang)} <ArrowRight className="h-4 w-4" />
-          </Link>
-          <Link
-            href="/plan"
-            className="flex items-center gap-2 rounded-lg border border-action px-5 py-3 text-sm font-semibold text-link transition-colors hover:bg-action/10"
-          >
-            {t("cta_plan_rotation", lang)}
-          </Link>
+        <p className="mt-3 max-w-3xl text-sm leading-relaxed text-ink-mid lg:text-base">
+          {t("hero_intro", lang)}
+        </p>
+
+        {/* Quick Jump Pills for All Core Features */}
+        <div className="mt-6 flex flex-wrap items-center justify-between gap-3 pt-2 border-t border-line-soft">
+          <div className="flex flex-wrap gap-2">
+            {[
+              { href: "/quick", icon: Zap, label: lang === "ta" ? "உடனடி தீர்வு" : lang === "bn" ? "দ্রুত উত্তর" : "Quick Answer" },
+              { href: "/plan", icon: CalendarRange, label: lang === "ta" ? "பயிர் திட்டம்" : lang === "bn" ? "ফসল পরিকল্পনা" : "Crop Planner" },
+              { href: "/disease", icon: Stethoscope, label: lang === "ta" ? "பயிர் மருத்துவர்" : lang === "bn" ? "ফসল ডাক্তার" : "Crop Doctor" },
+              { href: "/saved", icon: Bookmark, label: lang === "ta" ? "சேமிக்கப்பட்டவை" : lang === "bn" ? "সংরক্ষিত পরিকল্পনা" : "Saved Plans" },
+              { href: "/locate", icon: MapPin, label: lang === "ta" ? "இடம் தேர்வு" : lang === "bn" ? "স্থান ও আয়তন" : "Location & Area" },
+              { href: "/field", icon: Sprout, label: lang === "ta" ? "நில ஆய்வு" : lang === "bn" ? "মাঠ বিশ্লেষণ" : "Field Analysis" },
+            ].map((item) => (
+              <Link
+                key={item.href}
+                href={item.href}
+                className="flex items-center gap-1.5 rounded-lg border border-line bg-surface/80 px-3 py-1.5 text-xs font-semibold text-ink-hi hover:border-lime hover:text-lime transition-all"
+              >
+                <item.icon className="h-3.5 w-3.5 text-lime" />
+                <span>{item.label}</span>
+              </Link>
+            ))}
+          </div>
+          <DownloadTamilButton />
         </div>
       </section>
 
-      <section className="mt-10">
-        <h2 className="text-sm font-semibold uppercase tracking-wider text-ink-low">{t("home_entry_heading", lang)}</h2>
-        <div className="mt-4 grid gap-4 md:grid-cols-2">
-          {[
-            { href: "/quick", icon: Zap, title: t("nav_quick", lang), body: t("home_quick_body", lang), cta: t("nav_quick", lang) },
-            { href: "/locate", icon: MapPin, title: t("nav_locate", lang), body: t("home_locate_body", lang), cta: t("nav_locate", lang) },
-          ].map((card) => (
-            <Link
-              key={card.href}
-              href={card.href}
-              data-testid={`home-entry-${card.href.replace("/", "")}`}
-              className="group rounded-xl border border-line bg-surface p-5 transition-colors hover:border-lime"
-            >
-              <span className="flex h-10 w-10 items-center justify-center rounded-xl bg-lime/15">
-                <card.icon className="h-5 w-5 text-lime" />
-              </span>
-              <h3 className="mt-3 font-display text-lg font-bold">{card.title}</h3>
-              <p className="mt-1.5 text-sm leading-relaxed text-ink-mid">{card.body}</p>
-              <span className="mt-3 flex items-center gap-1.5 text-sm font-semibold text-link transition-colors group-hover:text-lime">
-                {card.cta} <ArrowRight className="h-4 w-4" />
-              </span>
-            </Link>
+      {/* 🧭 2. Unified Mission Control Command Center */}
+      <section className="space-y-4">
+        <div className="flex flex-wrap items-center justify-between gap-4">
+          <div>
+            <h2 className="font-display text-xl font-bold tracking-tight text-ink-hi flex items-center gap-2">
+              <Globe2 className="h-5 w-5 text-action" />
+              {lang === "bn" ? "খামার নির্বাচন ও আবহাওয়া কমান্ড সেন্টার" : "Farm & Climate Mission Control"}
+            </h2>
+            <p className="text-xs text-ink-low mt-0.5">
+              {lang === "bn"
+                ? "খামার পরিবর্তন করুন — স্বয়ংক্রিয়ভাবে নাসা উপগ্রহ ডেটা, ঘূর্ণন স্কোর এবং পূর্বাভাস আপডেট হবে"
+                : "Switch monitored demo farm to dynamically recompute NASA satellite scores and weather"}
+            </p>
+          </div>
+
+          {/* Farm Switcher Buttons */}
+          <div className="flex flex-wrap gap-1.5">
+            {FARMS.map((f) => (
+              <button
+                key={f.id}
+                onClick={() => setSelectedFarmId(f.id)}
+                className={`rounded-lg px-3 py-1.5 text-xs font-semibold border transition-all ${
+                  selectedFarmId === f.id
+                    ? "bg-lime text-canvas border-lime shadow-sm"
+                    : "bg-surface text-ink-mid border-line hover:border-line-soft hover:text-ink-hi"
+                }`}
+              >
+                {districtName(f, lang)}
+              </button>
+            ))}
+          </div>
+        </div>
+
+        {/* 7-Day Live Open-Meteo Weather Forecast */}
+        <WeatherForecastCard lat={farm.lat} lon={farm.lon} lang={lang} />
+      </section>
+
+      {/* 🌾 3. Interactive Crop Rotation Recommendation with Voice & Actions */}
+      <section className="space-y-4">
+        <div className="flex flex-wrap items-center justify-between gap-3">
+          <div className="flex items-center gap-2">
+            <h2 className="font-display text-xl font-bold tracking-tight text-ink-hi flex items-center gap-2">
+              <Sprout className="h-5 w-5 text-lime" />
+              {lang === "bn" ? "সেরা ৩-মৌসুম ফসল আবর্তন পরিকল্পনা" : "Top Ranked 3-Season Crop Rotation"}
+            </h2>
+            <span className="rounded-full bg-lime/10 border border-lime/30 px-2 py-0.5 text-[11px] font-bold text-lime">
+              {farmName(farm, lang)} ({districtName(farm, lang)})
+            </span>
+          </div>
+
+          {/* Voice Input & Action Buttons */}
+          <div className="flex flex-wrap items-center gap-2">
+            <VoicePriorityMic
+              lang={lang}
+              onPriorityChange={(k, v) => setPriorities((p) => ({ ...p, [k]: v }))}
+            />
+            {topRotation && (
+              <>
+                <SavePlanButton
+                  crops={topRotation.crops.map((c) => (lang === "bn" ? c.name_bn : c.name_en))}
+                  score={topRotation.total}
+                  district={districtName(farm, lang)}
+                  lang={lang}
+                />
+                <ExportPDFButton
+                  district={districtName(farm, lang)}
+                  crops={topRotation.crops.map((c) => (lang === "bn" ? c.name_bn : c.name_en))}
+                  score={topRotation.total}
+                  lang={lang}
+                />
+              </>
+            )}
+          </div>
+        </div>
+
+        {/* Top 2 Rotation Cards */}
+        <div className="grid gap-4 md:grid-cols-2">
+          {rotations.slice(0, 2).map((r, i) => (
+            <RotationCard
+              key={r.id}
+              result={r}
+              rank={i + 1}
+              selected={i === 0}
+              onWhy={() => setWhyResult(r)}
+            />
           ))}
         </div>
+
+        <div className="text-right">
+          <Link
+            href={`/plan?farm=${farm.id}`}
+            className="inline-flex items-center gap-1.5 text-xs font-bold text-link hover:underline"
+          >
+            {lang === "bn" ? "পুরো ফসল পরিকল্পনাকারী পেজে যান (সব দৃশ্যপট ও স্লাইডার সহ)" : "Open Full Crop Planner with scenario sliders & crop pool"}
+            <ArrowRight className="h-3.5 w-3.5" />
+          </Link>
+        </div>
       </section>
 
-      <section className="mt-12">
-        <h2 className="text-sm font-semibold uppercase tracking-wider text-ink-low">{t("farms_heading", lang)}</h2>
-        <div className="mt-4 grid grid-cols-1 gap-3 sm:grid-cols-2 xl:grid-cols-3">
+      {/* 🔬 4. Dual Tools: Crop Doctor & Turf.js Field Calculator */}
+      <section className="grid gap-6 md:grid-cols-2">
+        {/* Left: Crop Doctor Teaser */}
+        <div className="rounded-2xl border border-line bg-surface p-6 flex flex-col justify-between">
+          <div>
+            <div className="flex items-center justify-between">
+              <span className="flex h-10 w-10 items-center justify-center rounded-xl bg-lime/15 text-lime">
+                <Stethoscope className="h-5 w-5" />
+              </span>
+              <span className="rounded-full bg-lime/10 px-2 py-0.5 text-[10px] font-bold text-lime">
+                AI Vision
+              </span>
+            </div>
+            <h3 className="mt-3 font-display text-lg font-bold text-ink-hi">
+              {lang === "bn" ? "ফসল ডাক্তার — রোগ শনাক্তকরণ" : "Crop Doctor — Disease Diagnostics"}
+            </h3>
+            <p className="mt-1.5 text-xs leading-relaxed text-ink-mid">
+              {lang === "bn"
+                ? "পাতায় দাগ বা রোগ দেখা দিলে ছবি আপলোড করে রোগ নির্ণয় করুন। এআই মডেল রোগের চিকিৎসা এবং জমি রোগমুক্ত রাখতে কোন ফসল আবর্তন করতে হবে তা বাতলে দেবে।"
+                : "Upload an infected leaf photo to identify diseases like Rice Blast or Late Blight. Receive treatment advice and non-host rotation recommendations."}
+            </p>
+          </div>
+          <div className="mt-5">
+            <Link
+              href="/disease"
+              className="inline-flex items-center gap-1.5 rounded-lg bg-lime px-4 py-2 text-xs font-bold text-canvas hover:bg-lime/90 transition-colors"
+            >
+              {lang === "bn" ? "রোগ পরীক্ষা করুন" : "Scan Leaf Disease"}
+              <ArrowRight className="h-3.5 w-3.5" />
+            </Link>
+          </div>
+        </div>
+
+        {/* Right: Turf.js Field Area Calculator */}
+        <div>
+          <FieldAreaCalculator />
+        </div>
+      </section>
+
+      {/* 🗺️ 5. Monitored NASA Demo Farms Across Bangladesh */}
+      <section className="space-y-3">
+        <h2 className="text-sm font-semibold uppercase tracking-wider text-ink-low">
+          {t("farms_heading", lang)}
+        </h2>
+        <div className="grid grid-cols-1 gap-3 sm:grid-cols-2 xl:grid-cols-3">
           {FARMS.map((base) => {
             const f = withRealData(base);
+            const active = f.id === selectedFarmId;
             return (
-            <Link
-              key={f.id}
-              href={`/field?farm=${f.id}`}
-              className="group rounded-xl border border-line bg-surface p-4 transition-colors hover:border-action"
-            >
-              <div className="flex items-start justify-between">
-                <div>
-                  <p className="font-display text-base font-bold">{farmName(f, lang)}</p>
-                  <p className="mt-0.5 flex items-center gap-1 text-xs text-ink-low">
-                    <MapPin className="h-3 w-3" /> {districtName(f, lang)}, {divisionName(f, lang)}
-                  </p>
+              <div
+                key={f.id}
+                onClick={() => setSelectedFarmId(f.id)}
+                className={`cursor-pointer rounded-xl border p-4 transition-all ${
+                  active
+                    ? "border-lime bg-lime/5 shadow-sm"
+                    : "border-line bg-surface hover:border-line-soft"
+                }`}
+              >
+                <div className="flex items-start justify-between">
+                  <div>
+                    <p className="font-display text-base font-bold text-ink-hi">
+                      {farmName(f, lang)}
+                    </p>
+                    <p className="mt-0.5 flex items-center gap-1 text-xs text-ink-low">
+                      <MapPin className="h-3 w-3" /> {districtName(f, lang)}, {divisionName(f, lang)}
+                    </p>
+                  </div>
+                  <span className="rounded-full border border-line px-2 py-0.5 text-[10px] text-ink-mid">
+                    {farmContext(f, lang)}
+                  </span>
                 </div>
-                <span className="rounded-full border border-line px-2 py-0.5 text-[10px] text-ink-mid">{farmContext(f, lang)}</span>
+                <div className="mt-4 flex items-center gap-3 text-xs">
+                  <span
+                    className={`tabular font-semibold ${
+                      onsetShiftSignificant(f)
+                        ? f.onset.shiftDays > 0
+                          ? "text-amber"
+                          : "text-lime"
+                        : "text-ink-mid"
+                    }`}
+                  >
+                    {t("card_onset", lang)} {f.onset.shiftDays > 0 ? "+" : ""}
+                    {fmtNum(f.onset.shiftDays, lang)} {t("unit_days_short", lang)}
+                  </span>
+                  <span className="flex items-center gap-1 text-ink-mid">
+                    <Droplets className="h-3.5 w-3.5 text-blue-400" />
+                    {fmtNum(f.metrics.soilMoisturePct, lang)}%
+                  </span>
+                  <span className="flex items-center gap-1 text-ink-mid">
+                    <Thermometer className="h-3.5 w-3.5 text-rose-400" />
+                    {fmtNum(f.metrics.heatDays, lang)}d
+                  </span>
+                  <Link
+                    href={`/field?farm=${f.id}`}
+                    className="ml-auto text-xs font-semibold text-link hover:underline"
+                    onClick={(e) => e.stopPropagation()}
+                  >
+                    Details →
+                  </Link>
+                </div>
               </div>
-              <div className="mt-4 flex items-center gap-4 text-xs">
-                <span className={`tabular font-semibold ${onsetShiftSignificant(f) ? (f.onset.shiftDays > 0 ? "text-amber" : "text-lime") : "text-ink-mid"}`}>
-                  {t("card_onset", lang)} {f.onset.shiftDays > 0 ? "+" : ""}{fmtNum(f.onset.shiftDays, lang)} {t("unit_days_short", lang)}
-                  {!onsetShiftSignificant(f) && <span className="ml-1 font-normal">({t("ns_short", lang)})</span>}
-                </span>
-                <span className="flex items-center gap-1 text-ink-mid"><Droplets className="h-3.5 w-3.5 text-water" />{fmtNum(f.metrics.soilMoisturePct, lang)}%</span>
-                <span className="flex items-center gap-1 text-ink-mid"><Thermometer className="h-3.5 w-3.5 text-risk" />{fmtNum(f.metrics.heatDays, lang)} {t("unit_heat_days", lang)}</span>
-                <span className="ml-auto text-ink-low transition-colors group-hover:text-link"><ArrowRight className="h-3.5 w-3.5" /></span>
-              </div>
-            </Link>
             );
           })}
         </div>
       </section>
 
-      <section className="mt-12 grid gap-4 md:grid-cols-3">
-        {FEATURES.map((c) => (
-          <Panel key={c.title}>
-            <c.icon className="h-5 w-5 text-lime" />
-            <h3 className="mt-3 font-display text-base font-bold">{c.title}</h3>
-            <p className="mt-1.5 text-sm leading-relaxed text-ink-mid">{c.body}</p>
-          </Panel>
-        ))}
-      </section>
-
-      <p className="mt-10 flex items-center gap-2 text-xs text-ink-low">
-        <SourceChip source="fixture" />
-        {t("generated_fixtures", lang)}
-      </p>
+      {/* "Why" Drawer for SHAP & AI Explanation */}
+      {whyResult && (
+        <WhyDrawer result={whyResult} onClose={() => setWhyResult(null)} />
+      )}
     </div>
   );
 }

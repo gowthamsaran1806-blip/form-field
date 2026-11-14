@@ -19,19 +19,24 @@ import {
   Menu, 
   X, 
   Smartphone,
-  Download
+  Download,
+  Bookmark,
+  Stethoscope
 } from "lucide-react";
 import { LangContext, usePersistedLang, type Lang } from "@/lib/lang";
 import { ThemeProvider, useTheme } from "@/lib/theme";
 import { fmtNum, t } from "@/lib/i18n";
 import { FARMS, districtName, divisionName, farmName } from "@/lib/data";
 import { ChatWidget } from "@/components/ChatWidget";
+import { DownloadTamilButton } from "@/components/DownloadLocaleButton";
 
 const NAV: { href: string; key: Parameters<typeof t>[0]; icon: typeof Home }[] = [
   { href: "/", key: "nav_home", icon: Home },
   { href: "/quick", key: "nav_quick", icon: Zap },
   { href: "/field", key: "nav_field", icon: Sprout },
   { href: "/plan", key: "nav_plan", icon: CalendarRange },
+  { href: "/saved", key: "nav_saved", icon: Bookmark },
+  { href: "/disease", key: "nav_disease", icon: Stethoscope },
   { href: "/locate", key: "nav_locate", icon: MapPin },
   { href: "/docs", key: "nav_docs", icon: FileText },
   { href: "/method", key: "nav_method", icon: BookOpen },
@@ -220,6 +225,17 @@ function LangToggle() {
         বাং
       </button>
       <button
+        onClick={() => setLang("ta")}
+        className={`rounded-lg px-2 py-1 text-xs font-semibold transition-all ${
+          lang === "ta"
+            ? "bg-action text-white shadow-sm"
+            : "text-ink-mid hover:text-ink-hi"
+        }`}
+        title="தமிழில் பார்க்க"
+      >
+        தமிழ்
+      </button>
+      <button
         onClick={() => setLang("en")}
         className={`rounded-lg px-2 py-1 text-xs font-semibold transition-all ${
           lang === "en"
@@ -377,9 +393,18 @@ export function Shell({ children }: { children: React.ReactNode }) {
               </p>
             </div>
             <p className="mt-4 text-[11px] leading-relaxed text-ink-low">{t("footer_line", lang)}</p>
-            <p className="mt-2 font-bengali text-[11px] leading-relaxed text-ink-low">
-              NASA স্পেস অ্যাপস চ্যালেঞ্জের জন্য তৈরি — একটি কমিউনিটি সায়েন্স উদ্যোগ। এটি NASA-র কোনো দাপ্তরিক পণ্য নয়।
-            </p>
+            {lang === "ta" ? (
+              <p className="mt-2 text-[11px] leading-relaxed text-ink-low">
+                நாசா ஸ்பேஸ் ஆப்ஸ் சவாலுக்காக உருவாக்கப்பட்டது — இது ஒரு சமூக அறிவியல் முயற்சி. நாசாவின் அதிகாரப்பூர்வ தயாரிப்பு அல்ல.
+              </p>
+            ) : (
+              <p className="mt-2 font-bengali text-[11px] leading-relaxed text-ink-low">
+                NASA স্পেস অ্যাপস চ্যালেঞ্জের জন্য তৈরি — একটি কমিউনিটি সায়েন্স উদ্যোগ। এটি NASA-র কোনো দাপ্তরিক পণ্য নয়।
+              </p>
+            )}
+            <div className="mt-3">
+              <DownloadTamilButton className="w-full justify-center text-[11px] py-1.5 border border-line bg-inset hover:border-lime hover:text-lime rounded-lg" />
+            </div>
           </div>
         </aside>
 

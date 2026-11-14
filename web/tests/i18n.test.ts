@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { STRING_KEYS, fmtNum, soilTextureLabel, t, tf, toBnDigits } from "@/lib/i18n";
+import { STRING_KEYS, fmtNum, growthStageLabel, soilTextureLabel, t, tf, toBnDigits } from "@/lib/i18n";
 
 /** Bengali digits back to Latin, so a test can compare the value behind the glyphs. */
 const latinize = (s: string) => s.replace(/[০-৯]/g, (d) => String("০১২৩৪৫৬৭৮৯".indexOf(d)));
@@ -97,5 +97,14 @@ describe("the string table", () => {
       expect(tf(key, "bn", vars).includes("৭.৫"), key).toBe(true);
       expect(tf(key, "en", vars).includes("7.5"), key).toBe(true);
     }
+  });
+
+  it("provides valid translations for Tamil (ta)", () => {
+    expect(t("nav_home", "ta")).toBe("முகப்பு");
+    expect(t("nav_plan", "ta")).toBe("பயிர் திட்டம்");
+    expect(t("nav_disease", "ta")).toBe("பயிர் மருத்துவர்");
+    expect(t("tagline", "ta")).toContain("நாசா");
+    expect(soilTextureLabel("Loam", "ta")).toBe("வண்டல் மண்");
+    expect(growthStageLabel("Tillering", "ta")).toBe("தூர்கட்டும் நிலை");
   });
 });

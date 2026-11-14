@@ -14,6 +14,9 @@ import { useLang } from "@/lib/lang";
 import { fmtNum, t, tf, type StringKey } from "@/lib/i18n";
 import { Panel, SourceChip, InfoDot } from "@/components/ui";
 import { RotationCard, WhyDrawer } from "@/components/RotationCard";
+import { SavePlanButton } from "@/components/SavePlanButton";
+import { ExportPDFButton } from "@/components/ExportPDFButton";
+import { VoicePriorityMic } from "@/components/VoicePriorityMic";
 
 const ALL_CROPS = CROPS.map((c) => c.id);
 
@@ -60,7 +63,17 @@ function PlanView({ farmId }: { farmId: string }) {
       <div className="mt-6 grid gap-5 xl:grid-cols-[340px_1fr]">
         {/* Left: priorities + crops + scenarios */}
         <aside className="flex flex-col gap-5">
-          <Panel title={t("priorities", lang)}>
+          <Panel
+            title={t("priorities", lang)}
+            right={
+              <VoicePriorityMic
+                lang={lang}
+                onPriorityChange={(key, val) =>
+                  setPriorities((p) => ({ ...p, [key]: val }))
+                }
+              />
+            }
+          >
             <div className="flex flex-col gap-4">
               {SLIDERS.map((s) => (
                 <div key={s.key}>
@@ -143,6 +156,23 @@ function PlanView({ farmId }: { farmId: string }) {
               <span className="text-xs text-amber">{t("plan_tie", lang)}</span>
             )}
           </div>
+
+          {results.length > 0 && (
+            <div className="flex flex-wrap items-center gap-2">
+              <SavePlanButton
+                crops={results[0].crops.map((c) => (lang === "bn" ? c.name_bn : c.name_en))}
+                score={results[0].total}
+                district={districtName(pack, lang)}
+                lang={lang}
+              />
+              <ExportPDFButton
+                district={districtName(pack, lang)}
+                crops={results[0].crops.map((c) => (lang === "bn" ? c.name_bn : c.name_en))}
+                score={results[0].total}
+                lang={lang}
+              />
+            </div>
+          )}
 
           {results.slice(0, 3).map((r, i) => (
             <RotationCard key={r.id} result={r} rank={i + 1} selected={i === 0} onWhy={() => setWhy(r)} />

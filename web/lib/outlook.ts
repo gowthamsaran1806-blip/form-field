@@ -1,4 +1,5 @@
 import outlookJson from "../public/data/onset_outlook.json";
+import type { Lang } from "./i18n";
 
 /**
  * The outlook the offline build wrote into web/public/data/onset_outlook.json.
@@ -147,16 +148,18 @@ export const signedDays = (value: number | null): string | null => {
 
 const MONTHS_EN = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
 const MONTHS_BN = ["জানু", "ফেব্রু", "মার্চ", "এপ্রিল", "মে", "জুন", "জুলাই", "আগ", "সেপ্ট", "অক্টো", "নভে", "ডিসে"];
-/** "2026-05-23" → "23 May 2026" in English, "23 মে 2026" in Bangla — Latin digits either way. */
+const MONTHS_TA = ["ஜன", "பிப்", "மார்ச்", "ஏப்", "மே", "ஜூன்", "ஜூலை", "ஆக", "செப்", "அக்", "நவ", "டிச"];
+
+/** "2026-05-23" → "23 May 2026" in English, "23 மே 2026" in Tamil, "23 মে 2026" in Bangla. */
 export const outlookDate = (
   iso: string | null,
-  lang: "en" | "bn" = "en",
+  lang: Lang = "en",
   withYear = true,
 ): string | null => {
   if (!iso) return null;
   const [year, month, day] = iso.split("-");
   if (!year || !month || !day) return iso;
-  const months = lang === "bn" ? MONTHS_BN : MONTHS_EN;
+  const months = lang === "bn" ? MONTHS_BN : lang === "ta" ? MONTHS_TA : MONTHS_EN;
   const label = months[Number(month) - 1] ?? month;
   return withYear ? `${Number(day)} ${label} ${year}` : `${Number(day)} ${label}`;
 };
