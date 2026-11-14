@@ -1,4 +1,12 @@
 {
+  "name": "field-shift",
+  "version": "1.0.0",
+  "scripts": {
+    "build": "npm --prefix web run build",
+    "start": "npm --prefix web run start",
+    "dev": "npm --prefix web run dev",
+    "test": "npm --prefix web test"
+  },
   "devDependencies": {
     "remotion": "^4.0.543"
   }
