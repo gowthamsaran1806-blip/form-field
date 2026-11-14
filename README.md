@@ -17,8 +17,10 @@
 
 <br>
 
-[![Live demo — open](https://img.shields.io/badge/Live_demo-Open-2ea44f?style=flat-square)](https://field-shift-tan.vercel.app)
+[![Live demo — open](https://img.shields.io/badge/Live_demo-Open-2ea44f?style=flat-square)](https://form-field-self.vercel.app)
 [![The challenge](https://img.shields.io/badge/The_challenge-NASA_Space_Apps-f5a524?style=flat-square)](https://www.spaceappschallenge.org/2026/challenges/field-shift-adapting-farms-with-nasa-data/)
+[![Languages: EN | BN | TA](https://img.shields.io/badge/Languages-EN%20%7C%20BN%20%7C%20TA-7c5cff?style=flat-square)](https://form-field-self.vercel.app/?lang=ta)
+[![Gemini AI Doctor](https://img.shields.io/badge/AI%20Doctor-Gemini%202.0%20Flash-00c853?style=flat-square)](https://form-field-self.vercel.app/disease)
 [![How it works](https://img.shields.io/badge/How_it_works-30_seconds-0d7ea9?style=flat-square)](#how-it-works)
 [![Scorecard](https://img.shields.io/badge/Scorecard-judging_criteria-7c5cff?style=flat-square)](#scorecard)
 [![Use of AI](https://img.shields.io/badge/Use_of_AI-full_disclosure-6f42c1?style=flat-square)](docs/AI_USE.md)
@@ -270,7 +272,7 @@ To reach rural Bangladeshi farmers with spotty connectivity and diverse Android 
 
 1. **Instant Android PWA Install (Zero Store Friction):**
    - Built-in Web App Manifest ([`web/public/manifest.json`](web/public/manifest.json)) and Service Worker ([`web/public/sw.js`](web/public/sw.js)).
-   - Farmers open `field-shift-tan.vercel.app` in Android Chrome and tap **"Install App"** to add Field Shift to their home screen as a standalone, full-screen app.
+   - Farmers open `form-field-self.vercel.app` in Android Chrome and tap **"Install App"** to add Field Shift to their home screen as a standalone, full-screen app.
    - Caches crop rotation models, district profiles, and SMS text generator for full offline field use.
 2. **Native Android Studio Project (APK):**
    - Production-ready native Android wrapper located in [`android/`](android/) targeting Android SDK 34 (Android 14) with minimum SDK 24 (Nougat), covering 98.6% of active Android devices in Bangladesh.
@@ -317,8 +319,8 @@ Full detailed disclosure: [docs/AI_USE.md](docs/AI_USE.md) · Prompt log: [docs/
 Needs [Node 22](https://nodejs.org/). Works in a fresh clone:
 
 ```bash
-git clone https://github.com/Zul-Qarnain/field-shift.git
-cd field-shift/web
+git clone https://github.com/gowthamsaran1806-blip/form-field.git
+cd form-field/web
 npm ci && npm run dev        # open http://localhost:3000
 ```
 
