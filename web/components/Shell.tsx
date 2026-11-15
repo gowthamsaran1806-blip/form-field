@@ -37,6 +37,7 @@ const NAV: { href: string; key: Parameters<typeof t>[0]; icon: typeof Home }[] =
   { href: "/plan", key: "nav_plan", icon: CalendarRange },
   { href: "/saved", key: "nav_saved", icon: Bookmark },
   { href: "/disease", key: "nav_disease", icon: Stethoscope },
+  { href: "/satellite", key: "nav_satellite", icon: Globe },
   { href: "/locate", key: "nav_locate", icon: MapPin },
   { href: "/docs", key: "nav_docs", icon: FileText },
   { href: "/method", key: "nav_method", icon: BookOpen },

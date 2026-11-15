@@ -46,6 +46,7 @@ import { VoicePriorityMic } from "@/components/VoicePriorityMic";
 import { SavePlanButton } from "@/components/SavePlanButton";
 import { ExportPDFButton } from "@/components/ExportPDFButton";
 import { DownloadTamilButton } from "@/components/DownloadLocaleButton";
+import { AdaptationImpactCard } from "@/components/AdaptationImpactCard";
 
 const ALL_CROP_IDS = new Set(CROPS.map((c) => c.id));
 
@@ -95,6 +96,7 @@ export default function UnifiedHome() {
               { href: "/plan", icon: CalendarRange, label: lang === "ta" ? "பயிர் திட்டம்" : lang === "bn" ? "ফসল পরিকল্পনা" : "Crop Planner" },
               { href: "/disease", icon: Stethoscope, label: lang === "ta" ? "பயிர் மருத்துவர்" : lang === "bn" ? "ফসল ডাক্তার" : "Crop Doctor" },
               { href: "/saved", icon: Bookmark, label: lang === "ta" ? "சேமிக்கப்பட்டவை" : lang === "bn" ? "সংরক্ষিত পরিকল্পনা" : "Saved Plans" },
+              { href: "/satellite", icon: Globe2, label: lang === "ta" ? "நாசா செயற்கைக்கோள்" : lang === "bn" ? "নাসা স্যাটেলাইট" : "NASA GIBS Live" },
               { href: "/locate", icon: MapPin, label: lang === "ta" ? "இடம் தேர்வு" : lang === "bn" ? "স্থান ও আয়তন" : "Location & Area" },
               { href: "/field", icon: Sprout, label: lang === "ta" ? "நில ஆய்வு" : lang === "bn" ? "মাঠ বিশ্লেষণ" : "Field Analysis" },
             ].map((item) => (
@@ -199,6 +201,13 @@ export default function UnifiedHome() {
             />
           ))}
         </div>
+
+        {/* Climate Adaptation Margin & Sustainability ROI */}
+        {topRotation?.impact && (
+          <div className="mt-2">
+            <AdaptationImpactCard impact={topRotation.impact} lang={lang} />
+          </div>
+        )}
 
         <div className="text-right">
           <Link

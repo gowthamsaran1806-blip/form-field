@@ -17,6 +17,7 @@ import { RotationCard, WhyDrawer } from "@/components/RotationCard";
 import { SavePlanButton } from "@/components/SavePlanButton";
 import { ExportPDFButton } from "@/components/ExportPDFButton";
 import { VoicePriorityMic } from "@/components/VoicePriorityMic";
+import { AdaptationImpactCard } from "@/components/AdaptationImpactCard";
 
 const ALL_CROPS = CROPS.map((c) => c.id);
 
@@ -171,6 +172,12 @@ function PlanView({ farmId }: { farmId: string }) {
                 score={results[0].total}
                 lang={lang}
               />
+            </div>
+          )}
+
+          {results.length > 0 && results[0].impact && (
+            <div className="mt-1">
+              <AdaptationImpactCard impact={results[0].impact} lang={lang} />
             </div>
           )}
 

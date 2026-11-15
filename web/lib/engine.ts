@@ -48,6 +48,15 @@ export interface Penalty {
   source: BiText;
 }
 
+export interface ImpactMetrics {
+  waterSavedM3PerHa: number;
+  dieselFuelSavedLiters: number;
+  nitrogenFixedKgPerHa: number;
+  carbonAccrualTonsPerHa: number;
+  onsetShiftMarginDays: number;
+  salinityHeadroomDsm: number;
+}
+
 export interface RotationResult {
   id: string;
   crops: Crop[];
@@ -63,6 +72,8 @@ export interface RotationResult {
   calendarDays: number;
   /** The early-onset window credit already inside `total`, exposed so a score can be shown as its parts. */
   earlyCredit: number;
+  /** Quantified sustainability ROI & climate adaptation safety margin. */
+  impact?: ImpactMetrics;
 }
 
 export function confidenceFromQuality(dq: FarmPack["dataQuality"]): Confidence {
@@ -678,6 +689,23 @@ export function generateRotations(pack: FarmPack, priorities: Priorities, sc: Sc
       }
     }
 
+    const waterSaved = Math.max(0, Math.round((1 - irrigationShare) * 1950));
+    const dieselSaved = Math.round(waterSaved * 0.0125);
+    const carbonAccrual = Math.round((0.2 + residue * 0.35) * 100) / 100;
+    const onsetMargin = Math.max(0, YEAR_DAYS - used);
+    const repECe = pack.salinity.repECe ?? 1.5;
+    const minThreshold = Math.min(...real.map((c) => c.salt?.thresholdECe ?? 3.0));
+    const salinityMargin = Math.max(0, Math.round((minThreshold - repECe) * 10) / 10);
+
+    const impact: ImpactMetrics = {
+      waterSavedM3PerHa: waterSaved,
+      dieselFuelSavedLiters: dieselSaved,
+      nitrogenFixedKgPerHa: nFixCount * 42,
+      carbonAccrualTonsPerHa: carbonAccrual,
+      onsetShiftMarginDays: onsetMargin,
+      salinityHeadroomDsm: salinityMargin,
+    };
+
     return {
       id: `${pack.id}-rot-${idx}`,
       crops,
@@ -690,6 +718,7 @@ export function generateRotations(pack: FarmPack, priorities: Priorities, sc: Sc
       irrigationShare: Math.round(irrigationShare * 1000) / 1000,
       calendarDays: used,
       earlyCredit: Math.round(earlyCredit * 100) / 100,
+      impact,
     };
   });
 

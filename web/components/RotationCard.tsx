@@ -9,6 +9,8 @@ import { fmtNum, t } from "@/lib/i18n";
 import { ConfidenceChip, TierBadge } from "@/components/ui";
 import { ShapContributionChart } from "@/components/ShapContributionChart";
 import { generateFarmerExplanation, type AIExplanationResult } from "@/lib/geminiNano";
+import { AudioAdvisoryButton } from "@/components/AudioAdvisoryButton";
+import { AdaptationImpactCard } from "@/components/AdaptationImpactCard";
 
 const COMP_COLORS: Record<string, string> = {
   s1: "#4ea8de",
@@ -99,12 +101,19 @@ export function RotationCard({
           <TierBadge tier="NASA" />
           <span className="text-[10px] text-ink-low">{t("tiers_note", lang)}</span>
         </div>
-        <button
-          onClick={onWhy}
-          className="rounded-lg border border-action px-3 py-1.5 text-xs font-semibold text-action transition-colors hover:bg-action/10"
-        >
-          {t("why", lang)}?
-        </button>
+        <div className="flex items-center gap-2">
+          <AudioAdvisoryButton
+            text={`${result.crops.map((c) => cropName(c, lang)).join(", ")}. ${result.why.map((w) => pick(w, lang)).join(". ")}`}
+            lang={lang}
+            className="rounded-lg border border-line bg-inset px-2.5 py-1 text-xs font-semibold text-ink-mid hover:border-lime hover:text-lime"
+          />
+          <button
+            onClick={onWhy}
+            className="rounded-lg border border-action px-3 py-1.5 text-xs font-semibold text-action transition-colors hover:bg-action/10"
+          >
+            {t("why", lang)}?
+          </button>
+        </div>
       </div>
     </article>
   );
@@ -173,6 +182,13 @@ export function WhyDrawer({ result, onClose }: { result: RotationResult | null; 
         <div className="mt-4">
           <ShapContributionChart result={result} lang={lang} />
         </div>
+
+        {/* Adaptation Margin & Sustainability ROI */}
+        {result.impact && (
+          <div className="mt-4">
+            <AdaptationImpactCard impact={result.impact} lang={lang} />
+          </div>
+        )}
 
         <h3 className="mt-5 text-xs font-semibold uppercase tracking-wider text-ink-low">{t("because", lang)}</h3>
         <ul className="mt-2 space-y-2">

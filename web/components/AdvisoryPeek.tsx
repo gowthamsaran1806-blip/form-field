@@ -9,6 +9,7 @@ import { useCopy } from "@/lib/clipboard";
 import { SourceChip } from "@/components/ui";
 import { useLang } from "@/lib/lang";
 import { t } from "@/lib/i18n";
+import { AudioAdvisoryButton } from "@/components/AudioAdvisoryButton";
 
 export function AdvisoryPeek({ farmId }: { farmId: string }) {
   const realPack = packForFarm(farmId);
@@ -25,7 +26,8 @@ export function AdvisoryPeek({ farmId }: { farmId: string }) {
         {realPack && <SourceChip source="pack" />}
       </div>
       <p className="mt-2 font-display text-lg font-medium leading-relaxed text-ink-hi lg:text-xl">{text}</p>
-      <div className="mt-3 flex items-center gap-3">
+      <div className="mt-3 flex flex-wrap items-center gap-3">
+        <AudioAdvisoryButton text={text} lang={lang} />
         <button
           onClick={() => void copy(text)}
           className={`flex items-center gap-1.5 rounded-lg border px-3 py-1.5 text-xs font-medium ${

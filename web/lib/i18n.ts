@@ -26,6 +26,7 @@ const STRINGS = {
   nav_quick: { en: "Quick answer", bn: "দ্রুত উত্তর", ta: "உடனடி தீர்வு" },
   nav_saved: { en: "Saved Plans", bn: "সংরক্ষিত পরিকল্পনা", ta: "சேமிக்கப்பட்டவை" },
   nav_disease: { en: "Crop Doctor", bn: "ফসল ডাক্তার", ta: "பயிர் மருத்துவர்" },
+  nav_satellite: { en: "NASA GIBS Live", bn: "নাসা স্যাটেলাইট", ta: "நாசா செயற்கைக்கோள்" },
   search_ph: { en: "Search district or demo farm…", bn: "জেলা বা খামার খুঁজুন…", ta: "மாவட்டம் அல்லது பண்ணையைத் தேடுங்கள்…" },
   tagline: { en: "Earth data. Smarter farms.", bn: "পৃথিবীর তথ্য। ভালো ফসল।", ta: "நாசா புவி தரவு. சிறந்த விவசாயம்." },
   shell_note_1: { en: "NASA POWER data today.", bn: "আজ NASA POWER-এর ডেটা।" },
